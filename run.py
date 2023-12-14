@@ -5,16 +5,17 @@ import boto3
 from watchtower import CloudWatchLogHandler
 
 
-def setup_cloudwatch_logging(region_name):
+def setup_cloudwatch_logging():
     # Create a logger
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
+
+    boto3.setup_default_session(region_name="eu-west-2")
 
     # Create a CloudWatch log handler with the specified region
     cw_handler = CloudWatchLogHandler(
         log_group="MyTestLogGroup",
         stream_name="MyTestLogStream",
-        boto3_session=boto3.Session(region_name=region_name),
     )
 
     # Add the CloudWatch log handler to the logger
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     content = "hi"
 
     # Setup CloudWatch logging
-    logger = setup_cloudwatch_logging(region_name)
+    logger = setup_cloudwatch_logging()
 
     # Log a message to CloudWatch
     logger.info("Hello World")
