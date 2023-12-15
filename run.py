@@ -21,11 +21,14 @@ def setup_cloudwatch_logging():
 
 def run_pytest_benchmark(logger):
     command = [
+        sys.executable,
+        "-m",
         "pytest",
         "benchmarks/test_splink_50k_synthetic.py",
         "--benchmark-json",
         "benchmarking_results.json",
     ]
+
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
     )
