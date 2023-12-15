@@ -1,4 +1,5 @@
 import logging
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -62,6 +63,11 @@ if __name__ == "__main__":
     return_code = run_pytest_benchmark(logger)
     if return_code == 0:
         benchmark_file_name = f"benchmarking_results_{current_time}.json"
-        upload_file_to_s3(bucket, "benchmarking_results.json", logger, region_name)
+
+        # Rename the file to include the timestamp
+        os.rename("benchmarking_results.json", benchmark_file_name)
+
+        # Upload the file with the new name
+        upload_file_to_s3(bucket, benchmark_file_name, logger, region_name)
     else:
         logger.error("pytest benchmark command failed.")
