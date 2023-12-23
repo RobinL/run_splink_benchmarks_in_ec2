@@ -1,3 +1,5 @@
+import argparse
+import json
 import logging
 import os
 import subprocess
@@ -53,6 +55,22 @@ def upload_file_to_s3(bucket_name, file_name, logger, region_name):
 
 
 if __name__ == "__main__":
+    # Setup argument parsing
+    parser = argparse.ArgumentParser(
+        description="Run pytest benchmarks with custom parameters."
+    )
+    parser.add_argument(
+        "max_pairs",
+        type=float,
+        help="Maximum pairs to process, can be in scientific notation like 1e7.",
+    )
+    parser.add_argument("run_label", type=str, help="A label to describe the run.")
+    args = parser.parse_args()
+
+    # Use the parsed arguments
+    max_pairs = args.max_pairs
+    run_label = args.run_label
+
     region_name = "eu-west-2"
     bucket = "robinsplinkbenchmarks"
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -62,6 +80,14 @@ if __name__ == "__main__":
     # Run pytest benchmark and log its output
     return_code = run_pytest_benchmark(logger)
     if return_code == 0:
+        with open("benchmarking_results.json", "r") as file:
+            benchmark_data = json.load(file)
+
+        benchmark_data["custom"] = {"max_pairs": max_pairs, "run_label": run_label}
+
+        with open("benchmarking_results.json", "w") as file:
+            json.dump(benchmark_data, file, indent=4)
+
         benchmark_file_name = f"benchmarking_results_{current_time}.json"
 
         # Rename the file to include the timestamp

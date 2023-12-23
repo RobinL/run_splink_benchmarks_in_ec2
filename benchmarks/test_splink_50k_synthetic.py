@@ -50,7 +50,7 @@ def test_2_rounds_1k_duckdb(benchmark):
     df = splink_datasets.historical_50k
     benchmark.pedantic(
         duckdb_performance,
-        kwargs={"df": df, "max_pairs": 1e8},
+        kwargs={"df": df, "max_pairs": 1e5},
         rounds=2,
         iterations=1,
         warmup_rounds=1,
