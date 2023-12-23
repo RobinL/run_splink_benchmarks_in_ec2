@@ -23,7 +23,7 @@ def setup_cloudwatch_logging():
     return logger
 
 
-def run_pytest_benchmark(logger):
+def run_pytest_benchmark(logger, max_pairs):
     command = [
         sys.executable,
         "-m",
