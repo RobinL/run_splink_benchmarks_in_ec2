@@ -7,7 +7,7 @@ from splink.duckdb.comparison_library import (
 from splink.duckdb.linker import DuckDBLinker
 
 
-def duckdb_performance(df, max_pairs=1e6):
+def duckdb_performance(df, max_pairs):
     settings_dict = {
         "probability_two_random_records_match": 0.0001,
         "link_type": "dedupe_only",
@@ -37,22 +37,21 @@ def duckdb_performance(df, max_pairs=1e6):
 
     linker.estimate_u_using_random_sampling(max_pairs=max_pairs)
 
-    blocking_rule = "l.first_name = r.first_name and l.surname = r.surname"
-    linker.estimate_parameters_using_expectation_maximisation(blocking_rule)
+    # blocking_rule = "l.first_name = r.first_name and l.surname = r.surname"
+    # linker.estimate_parameters_using_expectation_maximisation(blocking_rule)
 
-    blocking_rule = "l.dob = r.dob"
-    linker.estimate_parameters_using_expectation_maximisation(blocking_rule)
+    # blocking_rule = "l.dob = r.dob"
+    # linker.estimate_parameters_using_expectation_maximisation(blocking_rule)
 
     df = linker.predict()
-    df.as_pandas_dataframe()
 
 
 def test_2_rounds_1k_duckdb(benchmark):
     df = splink_datasets.historical_50k
     benchmark.pedantic(
         duckdb_performance,
-        kwargs={"df": df, "max_pairs": 1e7},
-        rounds=1,
-        iterations=3,
+        kwargs={"df": df, "max_pairs": 1e8},
+        rounds=2,
+        iterations=1,
         warmup_rounds=1,
     )
