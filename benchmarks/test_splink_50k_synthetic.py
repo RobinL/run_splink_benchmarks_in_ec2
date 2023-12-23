@@ -46,11 +46,12 @@ def duckdb_performance(df, max_pairs):
     df = linker.predict()
 
 
-def test_2_rounds_1k_duckdb(benchmark):
+def test_2_rounds_1k_duckdb(benchmark, max_pairs):
+    print(f"Max pairs = {max_pairs}")
     df = splink_datasets.historical_50k
     benchmark.pedantic(
         duckdb_performance,
-        kwargs={"df": df, "max_pairs": 1e5},
+        kwargs={"df": df, "max_pairs": max_pairs},
         rounds=2,
         iterations=1,
         warmup_rounds=1,

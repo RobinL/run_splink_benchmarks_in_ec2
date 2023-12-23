@@ -28,9 +28,12 @@ def run_pytest_benchmark(logger):
         sys.executable,
         "-m",
         "pytest",
+        "-s",
         "benchmarks/test_splink_50k_synthetic.py",
         "--benchmark-json",
         "benchmarking_results.json",
+        "--max_pairs",
+        max_pairs,
     ]
 
     process = subprocess.Popen(
@@ -61,7 +64,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "max_pairs",
-        type=float,
+        type=str,
         help="Maximum pairs to process, can be in scientific notation like 1e7.",
     )
     parser.add_argument("run_label", type=str, help="A label to describe the run.")
@@ -78,7 +81,7 @@ if __name__ == "__main__":
     logger = setup_cloudwatch_logging()
 
     # Run pytest benchmark and log its output
-    return_code = run_pytest_benchmark(logger)
+    return_code = run_pytest_benchmark(logger, max_pairs)
     if return_code == 0:
         with open("benchmarking_results.json", "r") as file:
             benchmark_data = json.load(file)
