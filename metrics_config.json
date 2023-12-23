@@ -13,6 +13,15 @@
         "measurement": [
           "mem_used_percent"
         ]
+      },
+      "cpu": {
+        "measurement": [
+          "cpu_usage_idle",
+          "cpu_usage_iowait",
+          "cpu_usage_user",
+          "cpu_usage_system"
+        ],
+        "totalcpu": false
       }
     }
   },
