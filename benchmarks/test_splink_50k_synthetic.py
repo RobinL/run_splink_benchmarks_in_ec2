@@ -48,6 +48,7 @@ def duckdb_performance(df, max_pairs):
 
 def test_2_rounds_1k_duckdb(benchmark, max_pairs):
     print(f"Max pairs = {max_pairs}")
+    max_pairs = int(float(max_pairs))
     df = splink_datasets.historical_50k
     benchmark.pedantic(
         duckdb_performance,
