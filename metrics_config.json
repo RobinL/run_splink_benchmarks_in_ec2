@@ -16,10 +16,7 @@
       },
       "cpu": {
         "measurement": [
-          "cpu_usage_idle",
-          "cpu_usage_iowait",
-          "cpu_usage_user",
-          "cpu_usage_system"
+          "cpu_usage_user"
         ],
         "totalcpu": true
       }
