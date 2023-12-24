@@ -18,6 +18,9 @@
         "measurement": [
           "cpu_usage_user"
         ],
+        "resources": [
+          "*"
+        ],
         "totalcpu": true
       }
     }
