@@ -51,10 +51,13 @@ def run_pytest_benchmark(logger, max_pairs):
     return rc
 
 
-def upload_file_to_s3(bucket_name, file_name, logger, region_name):
+def upload_file_to_s3(*, bucket_name, file_name, folder_path, logger, region_name):
     s3_client = boto3.client("s3", region_name=region_name)
-    s3_client.upload_file(file_name, bucket_name, file_name)
-    logger.info(f"File '{file_name}' uploaded to bucket '{bucket_name}'.")
+    s3_file_path = f"{folder_path}/{file_name}"  # Key for S3 includes the folder path
+    s3_client.upload_file(file_name, bucket_name, s3_file_path)
+    logger.info(
+        f"File '{file_name}' uploaded to '{s3_file_path}' in bucket '{bucket_name}'."
+    )
 
 
 if __name__ == "__main__":
@@ -98,7 +101,17 @@ if __name__ == "__main__":
         # Rename the file to include the timestamp
         os.rename("benchmarking_results.json", benchmark_file_name)
 
-        # Upload the file with the new name
-        upload_file_to_s3(bucket, benchmark_file_name, logger, region_name)
+        # Specify the folder name where the file should be uploaded
+        s3_folder_name = "pytest_benchmark_results"
+
+        # Upload the file with the new name to the specified folder
+        upload_file_to_s3(
+            bucket_name=bucket,
+            file_name=benchmark_file_name,
+            folder_path=s3_folder_name,
+            logger=logger,
+            region_name=region_name,
+        )
+
     else:
         logger.error("pytest benchmark command failed.")
