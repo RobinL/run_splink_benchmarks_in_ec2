@@ -30,18 +30,11 @@ def duckdb_performance(df, max_pairs):
         "retain_matching_columns": False,
         "retain_intermediate_calculation_columns": False,
         "additional_columns_to_retain": ["cluster"],
-        "max_iterations": 20,
     }
 
     linker = DuckDBLinker(df, settings_dict)
 
     linker.estimate_u_using_random_sampling(max_pairs=max_pairs)
-
-    # blocking_rule = "l.first_name = r.first_name and l.surname = r.surname"
-    # linker.estimate_parameters_using_expectation_maximisation(blocking_rule)
-
-    # blocking_rule = "l.dob = r.dob"
-    # linker.estimate_parameters_using_expectation_maximisation(blocking_rule)
 
     df = linker.predict()
 
@@ -53,7 +46,7 @@ def test_2_rounds_1k_duckdb(benchmark, max_pairs):
     benchmark.pedantic(
         duckdb_performance,
         kwargs={"df": df, "max_pairs": max_pairs},
-        rounds=2,
+        rounds=1,
         iterations=1,
         warmup_rounds=1,
     )
