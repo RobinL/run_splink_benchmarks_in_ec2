@@ -73,6 +73,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--run_label", type=str, required=True, help="A label to describe the run."
     )
+    parser.add_argument(
+        "--output_bucket",
+        type=str,
+        required=True,
+        help="Name of the S3 bucket to upload results.",
+    )
+
     args = parser.parse_args()
 
     # Use the parsed arguments
@@ -80,7 +87,7 @@ if __name__ == "__main__":
     run_label = args.run_label
 
     region_name = "eu-west-2"
-    bucket = "robinsplinkbenchmarks"
+    output_bucket = args.output_bucket
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     logger = setup_cloudwatch_logging()
@@ -106,7 +113,7 @@ if __name__ == "__main__":
 
         # Upload the file with the new name to the specified folder
         upload_file_to_s3(
-            bucket_name=bucket,
+            bucket_name=output_bucket,
             file_name=benchmark_file_name,
             folder_path=s3_folder_name,
             logger=logger,
