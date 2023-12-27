@@ -12,16 +12,21 @@ import boto3
 from watchtower import CloudWatchLogHandler
 
 
-def get_instance_metadata(metadata_path):
-    base_url = "http://169.254.169.254/latest/meta-data/"
+def get_ec2_metadata(option):
     try:
-        with request.urlopen(base_url + metadata_path) as response:
-            return response.read().decode()
-
-    except HTTPError as e:
-        print(f"HTTP Error occurred: {e.code} {e.reason}")
-    except URLError as e:
-        print(f"URL Error occurred: {e.reason}")
+        result = subprocess.run(
+            ["ec2-metadata", option],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        if result.stdout:
+            return result.stdout.split(": ")[1].strip()
+        return None
+    except subprocess.CalledProcessError as e:
+        print(f"Error calling ec2-metadata: {e}")
+        return None
 
 
 def setup_cloudwatch_logging():
@@ -112,16 +117,11 @@ if __name__ == "__main__":
         with open("benchmarking_results.json", "r") as file:
             benchmark_data = json.load(file)
 
-        metadata = get_instance_metadata()
         custom_data = {}
-        custom_data["instance_type"] = metadata["instance-type"]
-        custom_data["instance_id"] = metadata["instance-id"]
+        custom_data["instance_id"] = get_ec2_metadata("-i")
+        custom_data["instance_type"] = get_ec2_metadata("-t")
         custom_data["max_pairs"] = max_pairs
         custom_data["run_label"] = run_label
-        try:
-            custom_data["all_metadata"] = metadata
-        except Exception as e:
-            pass
 
         benchmark_data["custom"] = custom_data
 
