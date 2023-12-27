@@ -5,9 +5,23 @@ import os
 import subprocess
 import sys
 from datetime import datetime
+from urllib import request
+from urllib.error import HTTPError, URLError
 
 import boto3
 from watchtower import CloudWatchLogHandler
+
+
+def get_instance_metadata(metadata_path):
+    base_url = "http://169.254.169.254/latest/meta-data/"
+    try:
+        with request.urlopen(base_url + metadata_path) as response:
+            return response.read().decode()
+
+    except HTTPError as e:
+        print(f"HTTP Error occurred: {e.code} {e.reason}")
+    except URLError as e:
+        print(f"URL Error occurred: {e.reason}")
 
 
 def setup_cloudwatch_logging():
@@ -98,7 +112,18 @@ if __name__ == "__main__":
         with open("benchmarking_results.json", "r") as file:
             benchmark_data = json.load(file)
 
-        benchmark_data["custom"] = {"max_pairs": max_pairs, "run_label": run_label}
+        metadata = get_instance_metadata()
+        custom_data = {}
+        custom_data["instance_type"] = metadata["instance-type"]
+        custom_data["instance_id"] = metadata["instance-id"]
+        custom_data["max_pairs"] = max_pairs
+        custom_data["run_label"] = run_label
+        try:
+            custom_data["all_metadata"] = metadata
+        except Exception as e:
+            pass
+
+        benchmark_data["custom"] = custom_data
 
         with open("benchmarking_results.json", "w") as file:
             json.dump(benchmark_data, file, indent=4)
