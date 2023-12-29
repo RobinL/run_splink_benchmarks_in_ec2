@@ -11,6 +11,10 @@ from urllib.error import HTTPError, URLError
 import boto3
 from watchtower import CloudWatchLogHandler
 
+from benchmarking_utils.cloudwatch import get_metric_data_from_ec2_run
+
+AWS_REGION = "eu-west-2"
+
 
 def get_ec2_metadata(option):
     try:
@@ -29,11 +33,17 @@ def get_ec2_metadata(option):
         return None
 
 
+def custom_json_serializer(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    raise TypeError(f"Type {type(obj)} not serializable")
+
+
 def setup_cloudwatch_logging():
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
-    boto3.setup_default_session(region_name="eu-west-2")
+    boto3.setup_default_session(region_name=AWS_REGION)
     cw_handler = CloudWatchLogHandler(
         log_group="MyTestLogGroup", stream_name="MyTestLogStream"
     )
@@ -80,6 +90,10 @@ def upload_file_to_s3(*, bucket_name, file_name, folder_path, logger, region_nam
 
 
 if __name__ == "__main__":
+    cw_client = boto3.client("cloudwatch", region_name=AWS_REGION)
+
+    metrics_collection_start_time = datetime.utcnow()
+
     parser = argparse.ArgumentParser(
         description="Run pytest benchmarks with custom parameters."
     )
@@ -113,20 +127,35 @@ if __name__ == "__main__":
 
     # Run pytest benchmark and log its output
     return_code = run_pytest_benchmark(logger, max_pairs)
+
+    metrics_collection_end_time = datetime.utcnow()
+
+    instance_id = get_ec2_metadata("-i")
+    instance_type = get_ec2_metadata("-t")
+
+    response = get_metric_data_from_ec2_run(
+        cw_client=cw_client,
+        instance=instance_id,
+        instance_type=instance_type,
+        metrics_collection_start_time=metrics_collection_start_time,
+        metrics_collection_end_time=metrics_collection_end_time,
+    )
+
     if return_code == 0:
         with open("benchmarking_results.json", "r") as file:
             benchmark_data = json.load(file)
 
         custom_data = {}
-        custom_data["instance_id"] = get_ec2_metadata("-i")
-        custom_data["instance_type"] = get_ec2_metadata("-t")
+        custom_data["instance_id"] = instance_id
+        custom_data["instance_type"] = instance_type
         custom_data["max_pairs"] = max_pairs
         custom_data["run_label"] = run_label
+        custom_data["metrics"] = response
 
         benchmark_data["custom"] = custom_data
 
         with open("benchmarking_results.json", "w") as file:
-            json.dump(benchmark_data, file, indent=4)
+            json.dump(benchmark_data, file, indent=4, default=custom_json_serializer)
 
         benchmark_file_name = f"benchmarking_results_{current_time}.json"
 
