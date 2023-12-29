@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     response = get_metric_data_from_ec2_run(
         cw_client=cw_client,
-        instance=instance_id,
+        instance_id=instance_id,
         instance_type=instance_type,
         metrics_collection_start_time=metrics_collection_start_time,
         metrics_collection_end_time=metrics_collection_end_time,
