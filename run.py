@@ -4,9 +4,7 @@ import logging
 import os
 import subprocess
 import sys
-from datetime import datetime
-from urllib import request
-from urllib.error import HTTPError, URLError
+from datetime import datetime, timedelta
 
 import boto3
 from watchtower import CloudWatchLogHandler
@@ -92,7 +90,7 @@ def upload_file_to_s3(*, bucket_name, file_name, folder_path, logger, region_nam
 if __name__ == "__main__":
     cw_client = boto3.client("cloudwatch", region_name=AWS_REGION)
 
-    metrics_collection_start_time = datetime.utcnow()
+    metrics_collection_start_time = datetime.utcnow() - timedelta(minutes=1)
 
     parser = argparse.ArgumentParser(
         description="Run pytest benchmarks with custom parameters."
@@ -128,7 +126,7 @@ if __name__ == "__main__":
     # Run pytest benchmark and log its output
     return_code = run_pytest_benchmark(logger, max_pairs)
 
-    metrics_collection_end_time = datetime.utcnow()
+    metrics_collection_end_time = datetime.utcnow() + timedelta(minutes=1)
 
     instance_id = get_ec2_metadata("-i")
     instance_type = get_ec2_metadata("-t")
