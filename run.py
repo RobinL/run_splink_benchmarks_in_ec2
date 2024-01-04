@@ -111,6 +111,13 @@ if __name__ == "__main__":
         help="Name of the S3 bucket to upload results.",
     )
 
+    parser.add_argument(
+        "--output_folder",
+        type=str,
+        required=True,
+        help="Name of the S3 folder.",
+    )
+
     args = parser.parse_args()
 
     # Use the parsed arguments
@@ -119,6 +126,7 @@ if __name__ == "__main__":
 
     region_name = "eu-west-2"
     output_bucket = args.output_bucket
+    output_folder = args.output_folder
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     logger = setup_cloudwatch_logging()
@@ -155,21 +163,16 @@ if __name__ == "__main__":
         with open("benchmarking_results.json", "w") as file:
             json.dump(benchmark_data, file, indent=4, default=custom_json_serializer)
 
-        benchmark_file_name = (
-            f"benchmarking_results_{instance_type}-{instance_id}_{current_time}.json"
-        )
+        benchmark_file_name = f"benchmarking_results_{instance_id}.json"
 
         # Rename the file to include the timestamp
         os.rename("benchmarking_results.json", benchmark_file_name)
-
-        # Specify the folder name where the file should be uploaded
-        s3_folder_name = "pytest_benchmark_results"
 
         # Upload the file with the new name to the specified folder
         upload_file_to_s3(
             bucket_name=output_bucket,
             file_name=benchmark_file_name,
-            folder_path=s3_folder_name,
+            folder_path=output_folder,
             logger=logger,
             region_name=region_name,
         )
