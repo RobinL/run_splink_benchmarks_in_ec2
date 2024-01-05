@@ -11,8 +11,6 @@ from watchtower import CloudWatchLogHandler
 
 from benchmarking_utils.cloudwatch import get_metric_data_from_ec2_run
 
-AWS_REGION = "eu-west-2"
-
 
 def get_ec2_metadata(option):
     try:
@@ -37,11 +35,11 @@ def custom_json_serializer(obj):
     raise TypeError(f"Type {type(obj)} not serializable")
 
 
-def setup_cloudwatch_logging():
+def setup_cloudwatch_logging(aws_region):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
-    boto3.setup_default_session(region_name=AWS_REGION)
+    boto3.setup_default_session(region_name=aws_region)
     cw_handler = CloudWatchLogHandler(
         log_group="MyTestLogGroup", stream_name="MyTestLogStream"
     )
@@ -88,8 +86,6 @@ def upload_file_to_s3(*, bucket_name, file_name, folder_path, logger, region_nam
 
 
 if __name__ == "__main__":
-    cw_client = boto3.client("cloudwatch", region_name=AWS_REGION)
-
     metrics_collection_start_time = datetime.utcnow() - timedelta(minutes=1)
 
     parser = argparse.ArgumentParser(
@@ -118,18 +114,27 @@ if __name__ == "__main__":
         help="Name of the S3 folder.",
     )
 
+    parser.add_argument(
+        "--aws_region",
+        type=str,
+        required=True,
+        help="AWS region for the CloudWatch client.",
+    )
+
     args = parser.parse_args()
 
     # Use the parsed arguments
     max_pairs = args.max_pairs
     run_label = args.run_label
 
-    region_name = "eu-west-2"
+    aws_region = args.aws_region
     output_bucket = args.output_bucket
     output_folder = args.output_folder
     current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    logger = setup_cloudwatch_logging()
+    cw_client = boto3.client("cloudwatch", region_name=aws_region)
+
+    logger = setup_cloudwatch_logging(aws_region)
 
     # Run pytest benchmark and log its output
     return_code = run_pytest_benchmark(logger, max_pairs)
@@ -174,7 +179,7 @@ if __name__ == "__main__":
             file_name=benchmark_file_name,
             folder_path=output_folder,
             logger=logger,
-            region_name=region_name,
+            region_name=aws_region,
         )
 
     else:
