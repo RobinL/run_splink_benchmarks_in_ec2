@@ -39,11 +39,17 @@ def setup_cloudwatch_logging(aws_region):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
+    # CloudWatch handler
     boto3.setup_default_session(region_name=aws_region)
     cw_handler = CloudWatchLogHandler(
         log_group="MyTestLogGroup", stream_name="MyTestLogStream"
     )
     logger.addHandler(cw_handler)
+
+    # Stdout handler
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.INFO)
+    logger.addHandler(stdout_handler)
 
     return logger
 
