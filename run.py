@@ -7,7 +7,6 @@ import sys
 from datetime import datetime, timedelta
 
 import boto3
-from watchtower import CloudWatchLogHandler
 
 from benchmarking_utils.cloudwatch import get_metric_data_from_ec2_run
 
@@ -35,18 +34,10 @@ def custom_json_serializer(obj):
     raise TypeError(f"Type {type(obj)} not serializable")
 
 
-def setup_cloudwatch_logging(aws_region):
+def setup_logging():
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
-    # CloudWatch handler
-    boto3.setup_default_session(region_name=aws_region)
-    cw_handler = CloudWatchLogHandler(
-        log_group="MyTestLogGroup", stream_name="MyTestLogStream"
-    )
-    logger.addHandler(cw_handler)
-
-    # Stdout handler
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setLevel(logging.INFO)
     logger.addHandler(stdout_handler)
@@ -140,7 +131,7 @@ if __name__ == "__main__":
 
     cw_client = boto3.client("cloudwatch", region_name=aws_region)
 
-    logger = setup_cloudwatch_logging(aws_region)
+    logger = setup_logging(aws_region)
 
     # Run pytest benchmark and log its output
     return_code = run_pytest_benchmark(logger, max_pairs)
