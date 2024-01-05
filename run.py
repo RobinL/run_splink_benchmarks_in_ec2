@@ -83,6 +83,7 @@ def upload_file_to_s3(*, bucket_name, file_name, folder_path, logger, region_nam
 
 
 if __name__ == "__main__":
+    sys.stderr = sys.stdout
     metrics_collection_start_time = datetime.utcnow() - timedelta(minutes=1)
 
     parser = argparse.ArgumentParser(
