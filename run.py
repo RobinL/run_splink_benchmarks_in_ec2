@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     cw_client = boto3.client("cloudwatch", region_name=aws_region)
 
-    logger = setup_logging()
+    logger = setup_logging(aws_region)
 
     # Run pytest benchmark and log its output
     return_code = run_pytest_benchmark(logger, max_pairs)
