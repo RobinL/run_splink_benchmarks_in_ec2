@@ -38,12 +38,12 @@ def linker(num_input_rows):
 
     # con.execute("SET home_directory='/home/ec2-user'")
 
-    # can't read direct from s3 on arm
+    # can't read direct from s3 on arm so instead downloaded it using boto3
     # https://github.com/duckdb/duckdb/issues/8035#issuecomment-1819348416
     create_table_sql = f"""
     CREATE TABLE df AS
         SELECT * EXCLUDE (cluster, uncorrupted_record)
-        FROM '3m_prepared.parquet')
+        FROM '3m_prepared.parquet'
         LIMIT {num_input_rows}
     """
     con.execute(create_table_sql)
