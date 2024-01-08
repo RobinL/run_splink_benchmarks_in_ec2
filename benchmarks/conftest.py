@@ -35,9 +35,9 @@ def linker(num_input_rows):
 
     con = duckdb.connect(database=":memory:")
 
-    con.execute("SET home_directory='/home/ec2-user'")
+    # con.execute("SET home_directory='/home/ec2-user'")
 
-    con.execute("CALL load_aws_credentials();")
+    # con.execute("CALL load_aws_credentials();")
 
     create_table_sql = f"""
     CREATE TABLE df AS
