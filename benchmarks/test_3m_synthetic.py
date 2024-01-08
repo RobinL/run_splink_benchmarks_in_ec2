@@ -80,3 +80,8 @@ def test_predict(benchmark, linker, max_pairs):
         iterations=1,
         warmup_rounds=0,
     )
+
+    for k, df in linker._intermediate_table_cache.items():
+        if "predict" in k:
+            tab = df.physical_name
+            print(linker.query_sql(f"select count(*) as p_count from {tab}"))
