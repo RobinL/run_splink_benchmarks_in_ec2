@@ -154,7 +154,7 @@ if __name__ == "__main__":
     s3_client = boto3.client("s3", region_name=aws_region)
     bucket_name = "robinsplinkbenchmarks"
     object_key = "data/3m_prepared.parquet"
-    local_filename = "/home/ec2-user/3m_prepared.parquet"
+    local_filename = "3m_prepared.parquet"
 
     # Download the file from S3
     s3_client.download_file(bucket_name, object_key, local_filename)
