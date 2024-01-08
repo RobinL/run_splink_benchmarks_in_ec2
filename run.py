@@ -45,17 +45,19 @@ def setup_logging():
     return logger
 
 
-def run_pytest_benchmark(logger, max_pairs):
+def run_pytest_benchmark(logger, max_pairs, num_input_rows):
     command = [
         sys.executable,
         "-m",
         "pytest",
         "-s",
-        "benchmarks/test_splink_50k_synthetic.py",
+        "benchmarks/test_3m_synthetic.py",
         "--benchmark-json",
         "benchmarking_results.json",
         "--max_pairs",
         max_pairs,
+        "--num_input_rows",
+        num_input_rows,
     ]
 
     process = subprocess.Popen(
@@ -94,6 +96,14 @@ if __name__ == "__main__":
         required=True,
         help="Maximum pairs to process, can be in scientific notation like 1e7.",
     )
+
+    parser.add_argument(
+        "--num_input_rows",
+        type=str,
+        required=True,
+        help="Number of rows in input dataset",
+    )
+
     parser.add_argument(
         "--run_label", type=str, required=True, help="A label to describe the run."
     )
@@ -122,6 +132,7 @@ if __name__ == "__main__":
 
     # Use the parsed arguments
     max_pairs = args.max_pairs
+    num_input_rows = args.num_input_rows
     run_label = args.run_label
 
     aws_region = args.aws_region
@@ -134,7 +145,7 @@ if __name__ == "__main__":
     logger = setup_logging()
 
     # Run pytest benchmark and log its output
-    return_code = run_pytest_benchmark(logger, max_pairs)
+    return_code = run_pytest_benchmark(logger, max_pairs, num_input_rows)
 
     metrics_collection_end_time = datetime.utcnow() + timedelta(minutes=1)
 
