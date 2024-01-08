@@ -192,7 +192,7 @@ if __name__ == "__main__":
         with open("benchmarking_results.json", "w") as file:
             json.dump(benchmark_data, file, indent=4, default=custom_json_serializer)
 
-        benchmark_file_name = f"benchmarking_results_{instance_id}.json"
+        benchmark_file_name = f"benchmarking_results_{instance_id}_{run_label}.json"
 
         # Rename the file to include the timestamp
         os.rename("benchmarking_results.json", benchmark_file_name)
