@@ -7,6 +7,7 @@ from splink.duckdb.blocking_rule_library import block_on
 from splink.duckdb.comparison_library import (
     array_intersect_at_sizes,
     distance_in_km_at_thresholds,
+    exact_match,
     levenshtein_at_thresholds,
 )
 from splink.duckdb.linker import DuckDBLinker
@@ -69,14 +70,15 @@ def linker(num_input_rows):
         "link_type": "dedupe_only",
         "blocking_rules_to_generate_predictions": brs,
         "comparisons": [
-            levenshtein_at_thresholds(
-                "first_name", [2, 5], term_frequency_adjustments=True
-            ),
+            levenshtein_at_thresholds("first_name", [2, 5]),
             levenshtein_at_thresholds("middle_name", [2, 5]),
             levenshtein_at_thresholds("last_name", [2, 5]),
             levenshtein_at_thresholds("dob", [1, 2, 4]),
-            distance_in_km_at_thresholds("birth_lat", "birth_lng", [10, 100]),
-            array_intersect_at_sizes("occupation", 1),
+            # distance_in_km_at_thresholds("birth_lat", "birth_lng", [10, 100]),
+            exact_match("birth_lat"),
+            exact_match("birth_lng"),
+            exact_match("occupation"),
+            # array_intersect_at_sizes("occupation", 1),
         ],
         "retain_intermediate_calculation_columns": False,
         "retain_matching_columns": False,
