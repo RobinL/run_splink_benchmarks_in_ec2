@@ -1,3 +1,5 @@
+import multiprocessing
+
 import duckdb
 from splink.duckdb.blocking_rule_library import block_on
 from splink.duckdb.comparison_library import (
@@ -71,14 +73,14 @@ def benchmark_estimate_u(max_pairs, linker):
     linker.estimate_u_using_random_sampling(max_pairs=max_pairs)
 
 
-def benchmark_estimate_parameters_using_expectation_maximisation(linker):
+def benchmark_estimate_parameters_using_expectation_maximisation(linker, cpu_count):
     linker.estimate_parameters_using_expectation_maximisation(
-        block_on(["first_name", "last_name"], salting_partitions=salts),
+        block_on(["first_name", "last_name"], salting_partitions=cpu_count),
         estimate_without_term_frequencies=True,
     )
 
     linker.estimate_parameters_using_expectation_maximisation(
-        block_on(["dob", "middle_name"], salting_partitions=salts),
+        block_on(["dob", "middle_name"], salting_partitions=cpu_count),
         estimate_without_term_frequencies=True,
     )
 
@@ -110,9 +112,11 @@ def test_estimate_u(benchmark, linker, max_pairs):
 
 
 def test_estimate_parameters_using_expectation_maximisation(benchmark, linker):
+    cpu_count = multiprocessing.cpu_count()
+
     benchmark.pedantic(
         benchmark_estimate_parameters_using_expectation_maximisation,
-        kwargs={"linker": linker},
+        kwargs={"linker": linker, cpu_count: cpu_count},
         rounds=1,
         iterations=1,
         warmup_rounds=0,
