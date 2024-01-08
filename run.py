@@ -45,7 +45,13 @@ def setup_logging():
     return logger
 
 
-def run_pytest_benchmark(logger, max_pairs, num_input_rows):
+def run_pytest_benchmark(logger, max_pairs, num_input_rows, aws_region):
+    s3_client = boto3.client("s3", region_name=aws_region)
+    bucket_name = "robinsplinkbenchmarks"
+    object_key = "data/3m_prepared.parquet"
+    local_filename = "/home/ec2-user/3m_prepared.parquet"
+    s3_client.download_file(bucket_name, object_key, local_filename)
+
     command = [
         sys.executable,
         "-m",
@@ -144,8 +150,17 @@ if __name__ == "__main__":
 
     logger = setup_logging()
 
+    # Download test data
+    s3_client = boto3.client("s3", region_name=aws_region)
+    bucket_name = "robinsplinkbenchmarks"
+    object_key = "data/3m_prepared.parquet"
+    local_filename = "/home/ec2-user/3m_prepared.parquet"
+
+    # Download the file from S3
+    s3_client.download_file(bucket_name, object_key, local_filename)
+
     # Run pytest benchmark and log its output
-    return_code = run_pytest_benchmark(logger, max_pairs, num_input_rows)
+    return_code = run_pytest_benchmark(logger, max_pairs, num_input_rows, aws_region)
 
     metrics_collection_end_time = datetime.utcnow() + timedelta(minutes=1)
 

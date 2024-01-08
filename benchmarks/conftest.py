@@ -1,3 +1,4 @@
+import boto3
 import duckdb
 import pytest
 from splink.duckdb.blocking_rule_library import block_on
@@ -35,14 +36,14 @@ def linker(num_input_rows):
 
     con = duckdb.connect(database=":memory:")
 
-    con.execute("SET home_directory='/home/ec2-user'")
+    # con.execute("SET home_directory='/home/ec2-user'")
 
-    # con.execute("CALL load_aws_credentials();")
-
+    # can't read direct from s3 on arm
+    # https://github.com/duckdb/duckdb/issues/8035#issuecomment-1819348416
     create_table_sql = f"""
     CREATE TABLE df AS
         SELECT * EXCLUDE (cluster, uncorrupted_record)
-        FROM read_parquet('s3://robinsplinkbenchmarks/data/3m_prepared.parquet')
+        FROM '3m_prepared.parquet')
         LIMIT {num_input_rows}
     """
     con.execute(create_table_sql)
