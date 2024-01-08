@@ -89,7 +89,9 @@ def benchmark_predict(linker):
     linker.predict(threshold_match_probability=0.9)
 
 
-def test_estimate_probability_two_random_records_match(benchmark, linker):
+def test_estimate_probability_two_random_records_match(benchmark, linker, max_pairs):
+    # Without this, tests are not executed in order specified in this file
+    _ = max_pairs
     benchmark.pedantic(
         benchmark_estimate_probability_two_random_records_match,
         kwargs={"linker": linker},
@@ -111,7 +113,10 @@ def test_estimate_u(benchmark, linker, max_pairs):
     )
 
 
-def test_estimate_parameters_using_expectation_maximisation(benchmark, linker):
+def test_estimate_parameters_using_expectation_maximisation(
+    benchmark, linker, max_pairs
+):
+    _ = max_pairs
     cpu_count = multiprocessing.cpu_count()
 
     benchmark.pedantic(
@@ -123,7 +128,8 @@ def test_estimate_parameters_using_expectation_maximisation(benchmark, linker):
     )
 
 
-def test_predict(benchmark, linker):
+def test_predict(benchmark, linker, max_pairs):
+    _ = max_pairs
     benchmark.pedantic(
         benchmark_predict,
         kwargs={"linker": linker},
