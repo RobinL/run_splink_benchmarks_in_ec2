@@ -116,7 +116,7 @@ def test_estimate_parameters_using_expectation_maximisation(benchmark, linker):
 
     benchmark.pedantic(
         benchmark_estimate_parameters_using_expectation_maximisation,
-        kwargs={"linker": linker, cpu_count: cpu_count},
+        kwargs={"linker": linker, "cpu_count": cpu_count},
         rounds=1,
         iterations=1,
         warmup_rounds=0,
