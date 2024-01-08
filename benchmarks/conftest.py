@@ -54,14 +54,15 @@ def linker(num_input_rows):
 
     cpu_count = multiprocessing.cpu_count()
     print(f"Number of cores = {cpu_count}")
+    salts = int(cpu_count / 4)
 
     brs = [
-        block_on(["first_name", "last_name"], salting_partitions=cpu_count / 4),
-        block_on(["first_name", "middle_name"], salting_partitions=cpu_count / 4),
-        block_on(["middle_name", "last_name"], salting_partitions=cpu_count / 4),
-        block_on(["occupation", "dob"], salting_partitions=cpu_count / 4),
-        block_on(["last_name", "birth_country"], salting_partitions=cpu_count / 4),
-        block_on(["country_citizenship", "dob"], salting_partitions=cpu_count / 4),
+        block_on(["first_name", "last_name"], salting_partitions=salts),
+        block_on(["first_name", "middle_name"], salting_partitions=salts),
+        block_on(["middle_name", "last_name"], salting_partitions=salts),
+        block_on(["occupation", "dob"], salting_partitions=salts),
+        block_on(["last_name", "birth_country"], salting_partitions=salts),
+        block_on(["country_citizenship", "dob"], salting_partitions=salts),
     ]
     settings_complex = {
         "probability_two_random_records_match": 0.01,

@@ -183,6 +183,7 @@ if __name__ == "__main__":
         custom_data["instance_id"] = instance_id
         custom_data["instance_type"] = instance_type
         custom_data["max_pairs"] = max_pairs
+        custom_data["num_input_rows"] = num_input_rows
         custom_data["run_label"] = run_label
         custom_data["metrics"] = response
 
