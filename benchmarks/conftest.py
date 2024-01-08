@@ -54,7 +54,7 @@ def linker(num_input_rows):
 
     cpu_count = multiprocessing.cpu_count()
     print(f"Number of cores = {cpu_count}")
-    salts = int(cpu_count / 4)
+    salts = int(cpu_count / 1)
 
     brs = [
         block_on(["first_name", "last_name"], salting_partitions=salts),
