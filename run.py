@@ -49,7 +49,7 @@ def run_pytest_benchmark(logger, max_pairs, num_input_rows, aws_region):
     s3_client = boto3.client("s3", region_name=aws_region)
     bucket_name = "robinsplinkbenchmarks"
     object_key = "data/3m_prepared.parquet"
-    local_filename = "/home/ec2-user/3m_prepared.parquet"
+    local_filename = "./3m_prepared.parquet"
     s3_client.download_file(bucket_name, object_key, local_filename)
 
     command = [
