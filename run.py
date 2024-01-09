@@ -57,6 +57,7 @@ def run_pytest_benchmark(logger, max_pairs, num_input_rows, aws_region):
         "-m",
         "pytest",
         "-s",
+        "-v",
         "benchmarks/test_3m_synthetic.py",
         "--benchmark-json",
         "benchmarking_results.json",
