@@ -33,6 +33,10 @@ def benchmark_predict(linker):
     linker.predict(threshold_match_probability=0.9)
 
 
+# Can't parametise because we want each linker be removed from memory
+# before next test runs
+
+
 @pytest.mark.order(1)
 def test_salt_2_estimate_probability_two_random_records_match(benchmark, linker_salt_2):
     benchmark.pedantic(
