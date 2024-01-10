@@ -77,6 +77,7 @@ def linker_cpu_salted(num_input_rows):
     cpu_count = multiprocessing.cpu_count()
     print(f"Number of cores = {cpu_count}")
     salt = math.ceil(cpu_count / len(br_conditions))
+    salt = 4
     print(f"Salt used = {salt}")
 
     if salt > 1:
