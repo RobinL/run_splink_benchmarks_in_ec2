@@ -1,3 +1,4 @@
+import math
 import multiprocessing
 
 import boto3
@@ -75,8 +76,8 @@ def linker_cpu_salted(num_input_rows):
 
     cpu_count = multiprocessing.cpu_count()
     print(f"Number of cores = {cpu_count}")
-    salt = int(cpu_count / 2)
-    print(f"Salt half cpu count = {salt}")
+    salt = math.ceil(cpu_count / len(br_conditions))
+    print(f"Salt used = {salt}")
 
     brs = [block_on(c, salting_partitions=cpu_count) for c in br_conditions]
 
