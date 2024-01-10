@@ -79,7 +79,10 @@ def linker_cpu_salted(num_input_rows):
     salt = math.ceil(cpu_count / len(br_conditions))
     print(f"Salt used = {salt}")
 
-    brs = [block_on(c, salting_partitions=cpu_count) for c in br_conditions]
+    if salt > 1:
+        brs = [block_on(c, salting_partitions=salt) for c in br_conditions]
+    else:
+        brs = [block_on(c) for c in br_conditions]
 
     settings_complex = {
         "link_type": "dedupe_only",
