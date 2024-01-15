@@ -195,14 +195,22 @@ if __name__ == "__main__":
 
         benchmark_file_name = f"benchmarking_results_{instance_id}_{run_label}.json"
 
-        # Rename the file to include the timestamp
         os.rename("benchmarking_results.json", benchmark_file_name)
 
-        # Upload the file with the new name to the specified folder
         upload_file_to_s3(
             bucket_name=output_bucket,
             file_name=benchmark_file_name,
-            folder_path=output_folder,
+            folder_path=output_folder + "/statistics",
+            logger=logger,
+            region_name=aws_region,
+        )
+
+        model_file_name = f"splink_model_{instance_id}_{run_label}.json"
+        os.rename("splink_model.json", model_file_name)
+        upload_file_to_s3(
+            bucket_name=output_bucket,
+            file_name=model_file_name,
+            folder_path=output_folder + "/models",
             logger=logger,
             region_name=aws_region,
         )

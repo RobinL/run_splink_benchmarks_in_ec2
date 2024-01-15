@@ -79,6 +79,7 @@ def test_predict(benchmark, linker):
 
 @pytest.mark.order(5)
 def test_cleanup(linker):
+    linker.save_model_to_json("splink_model.json", overwrite=True)
     for k, df in linker._intermediate_table_cache.items():
         if "predict" in k:
             tab = df.physical_name
