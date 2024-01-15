@@ -21,10 +21,28 @@ def benchmark_estimate_parameters_using_expectation_maximisation(linker):
         estimate_without_term_frequencies=True,
     )
 
+    to_drop = []
+    for k, v in linker._intermediate_table_cache.items():
+        if "__splink__df_comparison_vectors" in k:
+            to_drop.append(v)
+
+        if "__splink__agreement_pattern_counts" in k:
+            to_drop.append(v)
+    [v.drop_table_from_database_and_remove_from_cache() for v in to_drop]
+
     linker.estimate_parameters_using_expectation_maximisation(
         block_on(["dob", "middle_name"], salting_partitions=2),
         estimate_without_term_frequencies=True,
     )
+
+    to_drop = []
+    for k, v in linker._intermediate_table_cache.items():
+        if "__splink__df_comparison_vectors" in k:
+            to_drop.append(v)
+
+        if "__splink__agreement_pattern_counts" in k:
+            to_drop.append(v)
+    [v.drop_table_from_database_and_remove_from_cache() for v in to_drop]
 
 
 def benchmark_predict(linker):
