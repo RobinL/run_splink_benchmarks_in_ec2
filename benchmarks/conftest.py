@@ -34,7 +34,7 @@ def linker(num_input_rows):
     print(f"print num input rows = {num_input_rows}")
     num_input_rows = int(float(num_input_rows))
 
-    con = duckdb.connect(database=":memory:")
+    con = duckdb.connect(database=":temporary:")
 
     con.execute("SET temp_directory = 'tmp/'")
 
