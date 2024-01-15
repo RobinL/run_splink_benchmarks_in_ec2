@@ -58,7 +58,7 @@ def linker(num_input_rows):
         ["middle_name", "occupation"],
     ]
 
-    brs = [block_on(c, salting_partitions=2) for c in br_conditions]
+    brs = [block_on(c, salting_partitions=3) for c in br_conditions]
 
     settings_complex = {
         "link_type": "dedupe_only",
