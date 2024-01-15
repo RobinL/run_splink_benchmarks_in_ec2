@@ -36,6 +36,8 @@ def linker(num_input_rows):
 
     con = duckdb.connect(database=":memory:")
 
+    con.execute("SET temp_directory = 'tmp/'")
+
     create_table_sql = f"""
     CREATE TABLE df AS
         SELECT * EXCLUDE (cluster, uncorrupted_record)
