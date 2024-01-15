@@ -49,6 +49,16 @@ def benchmark_predict(linker):
     linker.predict(threshold_match_probability=0.9)
 
 
+def benchmark_cluster(linker):
+    for k, v in linker._intermediate_table_cache.items():
+        if "__splink__df_predict_" in k:
+            df_predict = v
+
+    linker.cluster_pairwise_predictions_at_threshold(
+        df_predict=df_predict, threshold_match_probability=0.9
+    )
+
+
 @pytest.mark.order(1)
 def test_estimate_probability_two_random_records_match(benchmark, linker):
     benchmark.pedantic(
@@ -96,6 +106,17 @@ def test_predict(benchmark, linker):
 
 
 @pytest.mark.order(5)
+def test_cluster(benchmark, linker):
+    benchmark.pedantic(
+        benchmark_cluster,
+        kwargs={"linker": linker},
+        rounds=1,
+        iterations=1,
+        warmup_rounds=0,
+    )
+
+
+@pytest.mark.order(6)
 def test_cleanup(linker):
     linker.save_model_to_json("splink_model.json", overwrite=True)
     for k, df in linker._intermediate_table_cache.items():
