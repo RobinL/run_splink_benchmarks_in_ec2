@@ -48,8 +48,8 @@ def setup_logging():
 def run_pytest_benchmark(logger, max_pairs, num_input_rows, aws_region):
     s3_client = boto3.client("s3", region_name=aws_region)
     bucket_name = "robinsplinkbenchmarks"
-    object_key = "data/3m_prepared.parquet"
-    local_filename = "./3m_prepared.parquet"
+    object_key = "data/7m_prepared.parquet"
+    local_filename = "./7m_prepared.parquet"
     s3_client.download_file(bucket_name, object_key, local_filename)
 
     command = [
@@ -58,7 +58,7 @@ def run_pytest_benchmark(logger, max_pairs, num_input_rows, aws_region):
         "pytest",
         "-s",
         "-v",
-        "benchmarks/test_3m_synthetic.py",
+        "benchmarks/test_7m_synthetic.py",
         "--benchmark-json",
         "benchmarking_results.json",
         "--max_pairs",
