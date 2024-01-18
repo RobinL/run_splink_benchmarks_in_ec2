@@ -41,6 +41,7 @@ def linker(spark, num_input_rows):
     df = spark.read.parquet("7m_prepared.parquet")
 
     df = df.drop("cluster", "uncorrupted_record").limit(num_input_rows)
+    df = df.repartition(100)
 
     df.createOrReplaceTempView("df")
 
@@ -100,7 +101,9 @@ def linker(spark, num_input_rows):
 @pytest.fixture(scope="session")
 def spark():
     conf = SparkConf()
-    cpu_count_str = str(multiprocessing.cpu_count() * 2)
+    cpu_count_str = str(multiprocessing.cpu_count() * 8)
+
+    conf.setMaster("local[*]")
 
     conf.set("spark.driver.memory", "24g")
     conf.set("spark.executor.memory", "24g")
