@@ -1,6 +1,7 @@
 pytest==7.4.3
 pytest-benchmark==4.0.0
-splink==3.9.10
+splink==3.9.11
 pyarrow==14.0.1
 boto3==1.34.1
 pytest-order==1.2.0
+pyspark==3.5.0

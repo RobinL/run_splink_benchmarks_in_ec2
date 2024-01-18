@@ -114,14 +114,3 @@ def test_cluster(benchmark, linker):
         iterations=1,
         warmup_rounds=0,
     )
-
-
-@pytest.mark.order(6)
-def test_cleanup(linker):
-    linker.save_model_to_json("splink_model.json", overwrite=True)
-    for k, df in linker._intermediate_table_cache.items():
-        if "predict" in k:
-            tab = df.physical_name
-            print(linker.query_sql(f"select count(*) as p_count from {tab}"))
-    linker._con.close()
-    print("closed linker connection")

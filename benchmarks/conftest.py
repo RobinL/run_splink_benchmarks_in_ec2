@@ -38,12 +38,14 @@ def linker(spark, num_input_rows):
     print(f"print num input rows = {num_input_rows}")
     num_input_rows = int(float(num_input_rows))
 
-    df = spark.read_parquet("7m_prepared.parquet")
+    df = spark.read.parquet("7m_prepared.parquet")
+
+    df = df.drop("cluster", "uncorrupted_record").limit(num_input_rows)
 
     df.createOrReplaceTempView("df")
 
     create_table_sql = f"""
-        SELECT * EXCEPT (cluster, uncorrupted_record)
+        SELECT *
         FROM df
         LIMIT {num_input_rows}
     """
@@ -99,7 +101,12 @@ def linker(spark, num_input_rows):
 def spark():
     conf = SparkConf()
     cpu_count_str = str(multiprocessing.cpu_count())
-    conf.set("spark.driver.memory", "6g")
+
+    conf.set("spark.driver.memory", "24g")
+    conf.set("spark.executor.memory", "24g")
+    conf.set("spark.driver.memoryOverhead", "4g")
+    conf.set("spark.executor.memoryOverhead", "4g")
+
     conf.set("spark.sql.shuffle.partitions", cpu_count_str)
     conf.set("spark.default.parallelism", cpu_count_str)
 
@@ -110,4 +117,5 @@ def spark():
 
     spark = SparkSession(sc)
     spark.sparkContext.setCheckpointDir("./tmp_checkpoints")
+
     return spark
