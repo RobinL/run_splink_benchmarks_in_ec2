@@ -100,7 +100,7 @@ def linker(spark, num_input_rows):
 @pytest.fixture(scope="session")
 def spark():
     conf = SparkConf()
-    cpu_count_str = str(multiprocessing.cpu_count())
+    cpu_count_str = str(multiprocessing.cpu_count() * 2)
 
     conf.set("spark.driver.memory", "24g")
     conf.set("spark.executor.memory", "24g")
