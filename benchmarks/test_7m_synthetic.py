@@ -1,5 +1,5 @@
 import pytest
-from splink.duckdb.blocking_rule_library import block_on
+from splink.spark.blocking_rule_library import block_on
 
 
 def benchmark_estimate_probability_two_random_records_match(linker):
