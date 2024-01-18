@@ -17,7 +17,7 @@ def benchmark_estimate_u(max_pairs, linker):
 
 def benchmark_estimate_parameters_using_expectation_maximisation(linker):
     linker.estimate_parameters_using_expectation_maximisation(
-        block_on(["first_name", "last_name", "occupation"], salting_partitions=2),
+        block_on(["first_name", "last_name", "occupation"]),
         estimate_without_term_frequencies=True,
     )
 
@@ -31,7 +31,7 @@ def benchmark_estimate_parameters_using_expectation_maximisation(linker):
     [v.drop_table_from_database_and_remove_from_cache() for v in to_drop]
 
     linker.estimate_parameters_using_expectation_maximisation(
-        block_on(["dob", "middle_name"], salting_partitions=2),
+        block_on(["dob", "middle_name"]),
         estimate_without_term_frequencies=True,
     )
 
