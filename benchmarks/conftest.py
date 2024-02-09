@@ -1,17 +1,13 @@
-import multiprocessing
-
+import duckdb
 import pytest
-from pyspark import SparkConf, SparkContext
-from pyspark.sql import SparkSession
-from splink.spark.blocking_rule_library import block_on
-from splink.spark.comparison_library import (
+from splink.duckdb.blocking_rule_library import block_on
+from splink.duckdb.comparison_library import (
     distance_in_km_at_thresholds,
     exact_match,
     jaro_winkler_at_thresholds,
     levenshtein_at_thresholds,
 )
-from splink.spark.jar_location import similarity_jar_location
-from splink.spark.linker import SparkLinker
+from splink.duckdb.linker import DuckDBLinker
 
 
 def pytest_addoption(parser):
@@ -34,27 +30,21 @@ def num_input_rows(request):
 
 
 @pytest.fixture(scope="session")
-def linker(spark, num_input_rows):
+def linker(num_input_rows):
     print(f"print num input rows = {num_input_rows}")
     num_input_rows = int(float(num_input_rows))
 
-    df = spark.read.parquet("7m_prepared.parquet")
-
-    df = df.drop("cluster", "uncorrupted_record").limit(num_input_rows)
-    df = df.repartition(100)
-
-    df.createOrReplaceTempView("df")
+    con = duckdb.connect(database=":memory:")
 
     create_table_sql = f"""
-        SELECT *
-        FROM df
+    CREATE TABLE df AS
+        SELECT * EXCLUDE (cluster, uncorrupted_record)
+        FROM '7m_prepared.parquet'
         LIMIT {num_input_rows}
     """
+    con.execute(create_table_sql)
 
-    df = spark.sql(create_table_sql)
-    df.createOrReplaceTempView("df")
-
-    print(df.count())
+    print(con.execute("select count(*) from df").df())
 
     br_conditions = [
         ["last_name", "occupation"],
@@ -68,7 +58,7 @@ def linker(spark, num_input_rows):
         ["middle_name", "occupation"],
     ]
 
-    brs = [block_on(c) for c in br_conditions]
+    brs = [block_on(c, salting_partitions=2) for c in br_conditions]
 
     settings_complex = {
         "link_type": "dedupe_only",
@@ -93,32 +83,6 @@ def linker(spark, num_input_rows):
         "em_convergence": 0.001,
     }
 
-    linker = SparkLinker(df, settings_complex)
+    linker = DuckDBLinker("df", settings_complex, connection=con)
 
     yield linker
-
-
-@pytest.fixture(scope="session")
-def spark():
-    conf = SparkConf()
-    cpu_count_str = str(multiprocessing.cpu_count() * 8)
-
-    conf.setMaster("local[*]")
-
-    conf.set("spark.driver.memory", "24g")
-    conf.set("spark.executor.memory", "24g")
-    conf.set("spark.driver.memoryOverhead", "4g")
-    conf.set("spark.executor.memoryOverhead", "4g")
-
-    conf.set("spark.sql.shuffle.partitions", cpu_count_str)
-    conf.set("spark.default.parallelism", cpu_count_str)
-
-    path = similarity_jar_location()
-    conf.set("spark.jars", path)
-
-    sc = SparkContext.getOrCreate(conf=conf)
-
-    spark = SparkSession(sc)
-    spark.sparkContext.setCheckpointDir("./tmp_checkpoints")
-
-    return spark

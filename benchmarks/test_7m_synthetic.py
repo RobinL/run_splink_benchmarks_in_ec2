@@ -1,5 +1,5 @@
 import pytest
-from splink.spark.blocking_rule_library import block_on
+from splink.duckdb.blocking_rule_library import block_on
 
 
 def benchmark_estimate_probability_two_random_records_match(linker):
@@ -17,7 +17,7 @@ def benchmark_estimate_u(max_pairs, linker):
 
 def benchmark_estimate_parameters_using_expectation_maximisation(linker):
     linker.estimate_parameters_using_expectation_maximisation(
-        block_on(["first_name", "last_name", "occupation"]),
+        block_on(["first_name", "last_name", "occupation"], salting_partitions=2),
         estimate_without_term_frequencies=True,
     )
 
@@ -31,7 +31,7 @@ def benchmark_estimate_parameters_using_expectation_maximisation(linker):
     [v.drop_table_from_database_and_remove_from_cache() for v in to_drop]
 
     linker.estimate_parameters_using_expectation_maximisation(
-        block_on(["dob", "middle_name"]),
+        block_on(["dob", "middle_name"], salting_partitions=2),
         estimate_without_term_frequencies=True,
     )
 
@@ -114,3 +114,14 @@ def test_cluster(benchmark, linker):
         iterations=1,
         warmup_rounds=0,
     )
+
+
+@pytest.mark.order(6)
+def test_cleanup(linker):
+    linker.save_model_to_json("splink_model.json", overwrite=True)
+    for k, df in linker._intermediate_table_cache.items():
+        if "predict" in k:
+            tab = df.physical_name
+            print(linker.query_sql(f"select count(*) as p_count from {tab}"))
+    linker._con.close()
+    print("closed linker connection")
